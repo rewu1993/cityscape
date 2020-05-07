@@ -91,4 +91,15 @@ TEST_CASE("Spatial point index", "[spatial][index]") {
     // Test query result id
     REQUIRE(closet_seg2->id() == 0);
   }
+  SECTION("Intersect from polygon") {
+    auto index = std::make_shared<
+        cityscape::spatial::SpatialIndex<std::shared_ptr<Point>>>(points);
+    boost::geometry::model::polygon<Point> triangle;
+    boost::geometry::read_wkt("POLYGON((0 0,1.5 3,3 0, 0 0))", triangle);
+
+    auto intersect_points = index->intersect(triangle);
+    REQUIRE(intersect_points.size() == 2);
+    REQUIRE(intersect_points.at(0)->id() == 0);
+    REQUIRE(intersect_points.at(1)->id() == 1);
+  }
 }

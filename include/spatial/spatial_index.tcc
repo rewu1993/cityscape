@@ -14,14 +14,26 @@ void cityscape::spatial::SpatialIndex<Leaf>::insert(const Leaf& leaf) {
   indexer_.insert(leaf);
 }
 
-template<typename Leaf>
-template<typename Query_type>
-std::vector<Leaf> SpatialIndex<Leaf>::knn (const Query_type &query_point, unsigned k) {
-    std::vector<Leaf> query_result;
-    indexer_.query(bgi::nearest(query_point, k),
-                   std::back_inserter(query_result));
+template <typename Leaf>
+template <typename Query_type>
+std::vector<Leaf> SpatialIndex<Leaf>::knn(const Query_type& query_point,
+                                          unsigned k) {
+  std::vector<Leaf> query_result;
+  indexer_.query(bgi::nearest(query_point, k),
+                 std::back_inserter(query_result));
 
-    return query_result;
+  return query_result;
+}
+
+template <typename Leaf>
+template <typename Query_type>
+std::vector<Leaf> SpatialIndex<Leaf>::intersect(
+    const Query_type& query_object) {
+  std::vector<Leaf> query_result;
+  indexer_.query(bgi::intersects(query_object),
+                 std::back_inserter(query_result));
+
+  return query_result;
 }
 
 

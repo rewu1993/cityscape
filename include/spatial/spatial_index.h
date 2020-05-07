@@ -57,6 +57,12 @@ class SpatialIndex {
   template <typename Query_type>
   std::vector<Leaf> knn(const Query_type& query_point, unsigned k);
 
+    //! Intersection query
+    //! \param[in] query_object Object need to be intersected
+    //! \param[out] query_result Objects that are intersected with the query object
+    template <typename Query_type>
+    std::vector<Leaf> intersect(const Query_type& query_object);
+
   //! size of the index
   id_t size() const { return indexer_.size(); }
 
