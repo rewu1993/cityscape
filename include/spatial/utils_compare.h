@@ -16,14 +16,14 @@ template <typename T>
 struct Distance_condition : public Condition<T> {
   double max_distance = 0.1;
   Distance_condition(double max_distance) : max_distance(max_distance) {}
-  bool is_satisfied(T& item1, T& item2) const {
+  bool is_satisfied(T& item1, T& item2) const override {
     return boost::geometry::distance(item1, item2) < max_distance;
   }
 };
 
 template <typename T>
 struct Name_condition : public Condition<T> {
-  bool is_satisfied(T& item1, T& item2) const {
+  bool is_satisfied(T& item1, T& item2) const override {
     return item1.name() == item2.name();
   }
 };

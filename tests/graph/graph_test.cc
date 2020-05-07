@@ -221,5 +221,28 @@ TEST_CASE("Graph graph", "[graph]") {
           graph->path_cost(path, cityscape::graph::Graph::Container::Nodes) ==
           Approx(9.6).epsilon(Tolerance));
     }
+    SECTION("Check Adjacency matrix with no weight") {
+      cityscape::graph::utils::NoWeight w_method;
+      auto A = graph->adjacency_matrix(w_method);
+      // check entries
+      REQUIRE(A.coeff(0, 1) == 1);
+      REQUIRE(A.coeff(2, 3) == 1);
+      REQUIRE(A.coeff(3, 4) == 1);
+
+      REQUIRE(A.coeff(1, 0) == 0);
+      REQUIRE(A.coeff(1, 1) == 0);
+    }
+
+    SECTION("Check Adjacency matrix with default weight") {
+      cityscape::graph::utils::DefaultWeight w_method;
+      auto A = graph->adjacency_matrix(w_method);
+      // check entries
+      REQUIRE(A.coeff(0, 1) == Approx(1.5).epsilon(Tolerance));
+      REQUIRE(A.coeff(2, 3) == Approx(11.6).epsilon(Tolerance));
+      REQUIRE(A.coeff(3, 4) == Approx(6.2).epsilon(Tolerance));
+
+      REQUIRE(A.coeff(1, 0) == 0);
+      REQUIRE(A.coeff(1, 1) == 0);
+    }
   }
 }

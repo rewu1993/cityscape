@@ -70,7 +70,6 @@ class Point : public cityscape::graph::Node {
 }  // namespace spatial
 }  // namespace cityscape
 
-// Register Point as a 2D Point
 // Adapt the point to the boost concept
 namespace boost {
 namespace geometry {

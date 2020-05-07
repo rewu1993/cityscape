@@ -40,6 +40,10 @@ find_package(Boost REQUIRED COMPONENTS system serialization)
 include_directories(${BOOST_INCLUDE_DIRS})
 link_libraries(${Boost_SERIALIZATION_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 
+# Eigen
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
 # MPI
 find_package(MPI)
 if (MPI_FOUND)

@@ -1,18 +1,36 @@
 #ifndef CITYSCAPE_GRAPH_GRAPH_H_
 #define CITYSCAPE_GRAPH_GRAPH_H_
 
+#include <Eigen/Sparse>
 #include <iostream>
 #include <map>
 #include <queue>
 
-#include "tsl/robin_map.h"
-
 #include "edge.h"
 #include "index_manager.h"
 #include "node.h"
+#include "tsl/robin_map.h"
 
 namespace cityscape {
 namespace graph {
+namespace utils {
+struct Weight {
+  virtual ~Weight() = default;
+  virtual double get_weight(const std::shared_ptr<cityscape::graph::Edge>&) = 0;
+};
+struct NoWeight : Weight {
+  double get_weight(const std::shared_ptr<cityscape::graph::Edge>&) override {
+    return 1;
+  }
+};
+struct DefaultWeight : Weight {
+  double get_weight(
+      const std::shared_ptr<cityscape::graph::Edge>& edge) override {
+    return edge->weight();
+  }
+};
+
+}  // namespace utils
 
 //! Graph class
 //! \brief Base class of graph
@@ -67,12 +85,17 @@ class Graph {
                                         const std::string& dest,
                                         Container ctr = Container::Edges) const;
 
-  // Compute cost of shortest paths from src to a vertex
+  //! Compute cost of shortest paths from src to a vertex
   //! \param[in] path Vector of vertices or edges (default is edges)
   //! \param[in] ctr Container type (default is edges)
   //! \retval cost Cost of the path
   double path_cost(const std::vector<cityscape::id_t>& path,
                    Container ctr = Container::Edges) const;
+
+  //! Dynamically compute the adjacency matrix of the graph
+  //! \param[in] weight_method Method on compute edge weight from edge ptr
+  //! \retval A Adjacency matrix of the graph with defined weight
+  Eigen::SparseMatrix<double> adjacency_matrix(utils::Weight& weight_method);
 
  protected:
   //! Graph id

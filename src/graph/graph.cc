@@ -217,3 +217,20 @@ double cityscape::graph::Graph::path_cost(
   }
   return cost;
 }
+
+Eigen::SparseMatrix<double> cityscape::graph::Graph::adjacency_matrix(
+    utils::Weight& weight_method) {
+  Eigen::SparseMatrix<double> A;
+  std::vector<Eigen::Triplet<double>> graph_triplet;
+  A.resize(this->nnodes(), this->nedges());
+
+  // construct from the map
+  for (auto const& x : edges_) {
+    auto nids = x.first;
+    auto edge = x.second;
+    graph_triplet.emplace_back(std::get<0>(nids), std::get<1>(nids),
+                               weight_method.get_weight(edge));
+  }
+  A.setFromTriplets(graph_triplet.begin(), graph_triplet.end());
+  return A;
+}
