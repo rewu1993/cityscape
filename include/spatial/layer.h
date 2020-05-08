@@ -32,9 +32,10 @@ class Layer : public cityscape::graph::Graph {
   bool create_edge(const std::string& src, const std::string& dest,
                    bool directed, const std::string& tag = std::string());
 
-  bool create_edge(const cityscape::id_t& src_id,
-                   const cityscape::id_t& dest_id, bool directed,
-                   const std::string& tag = std::string());
+  //! Add edge from edge instance
+  //! \param[in] src_id Source node id
+  //! \param[in] dest_id Destination node id
+  //! \param[in] segment The segment instance that need to be added
 
   bool create_edge(const cityscape::id_t& src_id, const id_t& dest_id,
                    const std::shared_ptr<Segment<P>> segment);

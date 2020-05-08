@@ -25,20 +25,14 @@ bool Layer<P>::add_node(const std::shared_ptr<P>& point) {
 template <typename P>
 bool Layer<P>::create_edge(const std::string& src, const std::string& dest,
                            bool directed, const std::string& tag) {
-  if (src == dest)
-    throw std::runtime_error("Source and destination are identical");
-
-  auto src_id = nodes_names_.at(src);
-  auto dest_id = nodes_names_.at(dest);
-
-  return create_edge(src_id, dest_id, directed, tag);
-}
-
-template <typename P>
-bool Layer<P>::create_edge(const cityscape::id_t& src_id, const id_t& dest_id,
-                           bool directed, const std::string& tag) {
   bool edge_status = true;
   try {
+    if (src == dest)
+      throw std::runtime_error("Source and destination are identical");
+
+    auto src_id = nodes_names_.at(src);
+    auto dest_id = nodes_names_.at(dest);
+
     auto source = points_.at(src_id);
     auto destination = points_.at(dest_id);
 

@@ -37,15 +37,15 @@ TEST_CASE("Spatial select utils check", "[spatial][layer][utils]") {
     intersection_spec.compute_attributes(layer);
 
     auto nids = intersection_spec.nids();
-    REQUIRE(nids.size() == 2);
-    REQUIRE(nids.count(0) == 1);
-    REQUIRE(nids.count(1) == 1);
-    REQUIRE(nids.count(2) == 0);
+    REQUIRE(nids->size() == 2);
+    REQUIRE(std::find(nids->begin(), nids->end(), 0) != nids->end());
+    REQUIRE(std::find(nids->begin(), nids->end(), 1) != nids->end());
+    REQUIRE(std::find(nids->begin(), nids->end(), 2) == nids->end());
 
     auto edge_specs = intersection_spec.edge_specs();
-    REQUIRE(edge_specs.size() == 1);
-    REQUIRE(std::find(edge_specs.begin(), edge_specs.end(),
-                      std::make_tuple(0, 1)) != edge_specs.end());
+    REQUIRE(edge_specs->size() == 1);
+    REQUIRE(std::find(edge_specs->begin(), edge_specs->end(),
+                      std::make_tuple(0, 1)) != edge_specs->end());
   }
   SECTION("Sublayer creation test") {
     using Polygon = boost::geometry::model::polygon<Point>;
@@ -60,7 +60,12 @@ TEST_CASE("Spatial select utils check", "[spatial][layer][utils]") {
     // check number of attributes in new layer
     REQUIRE(new_layer->nnodes() == 2);
     REQUIRE(new_layer->nedges() == 1);
-    // check stored name
+    // check stored points
     REQUIRE(layer->point(0)->name() == "spatial0");
+    // check stored edges
+    auto nid0 = layer->nname2id("spatial0");
+    auto nid1 = layer->nname2id("spatial1");
+    REQUIRE(layer->segment(nid1, nid0) == nullptr);
+    REQUIRE(layer->segment(nid0, nid1)->id() == 0);
   }
 }
