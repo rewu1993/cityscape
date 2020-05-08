@@ -74,6 +74,27 @@ bool Layer<P>::create_edge(const cityscape::id_t& src_id, const id_t& dest_id,
 }
 
 template <typename P>
+bool Layer<P>::create_edge(const cityscape::id_t& src_id, const id_t& dest_id,
+                           const std::shared_ptr<Segment<P>> segment) {
+  bool edge_status = true;
+  try {
+    auto eid = segment->id();
+    segment_index_->insert(segment);
+    segments_.emplace(
+        std::make_pair(std::make_tuple(src_id, dest_id), segment));
+    segment_ids_.emplace(std::make_pair(eid, segment));
+    // add to edges as well
+    edges_.emplace(std::make_pair(std::make_tuple(src_id, dest_id), segment));
+    edge_ids_.emplace(std::make_pair(eid, segment));
+
+  } catch (std::exception& exception) {
+    edge_status = false;
+    std::cout << "Exception: " << exception.what() << "\n";
+  }
+  return edge_status;
+}
+
+template <typename P>
 std::shared_ptr<Segment<P>> Layer<P>::segment(cityscape::id_t src,
                                               cityscape::id_t dest) {
   std::shared_ptr<Segment<P>> segment = nullptr;

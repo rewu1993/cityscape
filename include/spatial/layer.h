@@ -36,6 +36,9 @@ class Layer : public cityscape::graph::Graph {
                    const cityscape::id_t& dest_id, bool directed,
                    const std::string& tag = std::string());
 
+  bool create_edge(const cityscape::id_t& src_id, const id_t& dest_id,
+                   const std::shared_ptr<Segment<P>> segment);
+
   //! Return an edge pointer
   //! \param[in] src Source node id
   //! \param[in] dest Destination node id

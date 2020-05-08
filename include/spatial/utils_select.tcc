@@ -45,7 +45,11 @@ std::shared_ptr<Layer<P>> select_sub_layer(std::shared_ptr<Layer<P>> l,
   }
   // construct edges
   for (const auto e_spec : edge_specs) {
-    new_layer->create_edge(std::get<0>(e_spec), std::get<1>(e_spec), true);
+    auto src_id = std::get<0>(e_spec);
+    auto dst_id = std::get<1>(e_spec);
+    auto segment = l->segment(src_id, dst_id);
+
+    new_layer->create_edge(src_id, dst_id, segment);
   }
   return new_layer;
 }
