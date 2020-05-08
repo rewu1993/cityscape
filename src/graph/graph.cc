@@ -16,13 +16,19 @@ bool cityscape::graph::Graph::check_tag(const std::string& tag) const {
   return (tags_.find(tag) != tags_.end() ? true : false);
 }
 
+//! Node name to node id
+cityscape::id_t cityscape::graph::Graph::nname2id(
+    const std::string& name) const {
+  return nodes_names_.at(name);
+}
+
 //! Add node
 bool cityscape::graph::Graph::add_node(const std::shared_ptr<Node>& node) {
   bool add_node_status = true;
   try {
     // Insert if node is not found in the graph
     if (nodes_names_.find(node->name()) == nodes_names_.end()) {
-      auto nid = node->id();
+      auto nid = node_idx_.create_index();
       nodes_.emplace(std::make_pair(nid, node));
       nodes_names_.emplace(std::make_pair(node->name(), nid));
     } else {
@@ -49,8 +55,8 @@ bool cityscape::graph::Graph::create_edge(const std::string& src,
     if (src == dest)
       throw std::runtime_error("Source and destination are identical");
 
-    auto src_id = nodes_names_.at(src);
-    auto dest_id = nodes_names_.at(dest);
+    auto src_id = nname2id(src);
+    auto dest_id = nname2id(dest);
     auto source = nodes_.at(src_id);
     auto destination = nodes_.at(dest_id);
 
@@ -218,8 +224,8 @@ double cityscape::graph::Graph::path_cost(
   return cost;
 }
 
-Eigen::SparseMatrix<double> cityscape::graph::Graph::adjacency_matrix(
-    utils::Weight& weight_method) {
+Eigen::SparseMatrix<double, Eigen::RowMajor>
+    cityscape::graph::Graph::adjacency_matrix(utils::Weight& weight_method) {
   Eigen::SparseMatrix<double> A;
   std::vector<Eigen::Triplet<double>> graph_triplet;
   A.resize(this->nnodes(), this->nedges());
@@ -233,4 +239,19 @@ Eigen::SparseMatrix<double> cityscape::graph::Graph::adjacency_matrix(
   }
   A.setFromTriplets(graph_triplet.begin(), graph_triplet.end());
   return A;
+}
+
+std::vector<std::vector<cityscape::id_t>>
+    cityscape::graph::Graph::plain_adjacency_list() {
+  std::vector<std::vector<cityscape::id_t>> L;
+
+  std::vector<Eigen::Triplet<double>> graph_triplet;
+  L.resize(this->nnodes());
+  // construct from the map
+  for (auto const& x : edges_) {
+    auto nids = x.first;
+    auto edge = x.second;
+    L[std::get<0>(nids)].emplace_back(std::get<1>(nids));
+  }
+  return L;
 }

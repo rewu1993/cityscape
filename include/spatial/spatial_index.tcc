@@ -36,5 +36,4 @@ std::vector<Leaf> SpatialIndex<Leaf>::intersect(
   return query_result;
 }
 
-
 #endif

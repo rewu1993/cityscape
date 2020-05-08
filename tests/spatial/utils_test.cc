@@ -1,8 +1,12 @@
+
+#include <chrono>
+#include <segment.h>
+
 #include "catch.hpp"
 #include "spatial_index.h"
 #include "utils_compare.h"
-#include <chrono>
-#include <segment.h>
+#include "utils_select.h"
+
 // Check Spatial point class
 TEST_CASE("Spatial utills check", "[spatial][utils]") {
   using Point = cityscape::spatial::Point2d;
@@ -82,5 +86,6 @@ TEST_CASE("Spatial utills check", "[spatial][utils]") {
     REQUIRE(dst_points[1]->check_tag("school0") == false);
     REQUIRE(dst_points[2]->check_tag("school1") == true);
   }
+
   //
 }

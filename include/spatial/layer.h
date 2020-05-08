@@ -32,12 +32,18 @@ class Layer : public cityscape::graph::Graph {
   bool create_edge(const std::string& src, const std::string& dest,
                    bool directed, const std::string& tag = std::string());
 
+  bool create_edge(const cityscape::id_t& src_id,
+                   const cityscape::id_t& dest_id, bool directed,
+                   const std::string& tag = std::string());
+
   //! Return an edge pointer
   //! \param[in] src Source node id
   //! \param[in] dest Destination node id
   //! \retval edge Edge pointer
   std::shared_ptr<Segment<P>> segment(cityscape::id_t src,
                                       cityscape::id_t dest);
+
+  std::shared_ptr<P> point(cityscape::id_t nid);
   //! Get point index (Rtree)
   std::shared_ptr<SpatialIndex<std::shared_ptr<P>>> point_index() const {
     return point_index_;

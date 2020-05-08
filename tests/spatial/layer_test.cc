@@ -45,6 +45,8 @@ TEST_CASE("Spatial layer check", "[spatial][layer]") {
 
       // Check number of nodes
       REQUIRE(layer->nnodes() == 1);
+      // Check stored point
+      REQUIRE(layer->point(0)->name() == name);
     }
   }
   // Create an edge

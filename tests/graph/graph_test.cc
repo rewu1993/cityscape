@@ -244,5 +244,15 @@ TEST_CASE("Graph graph", "[graph]") {
       REQUIRE(A.coeff(1, 0) == 0);
       REQUIRE(A.coeff(1, 1) == 0);
     }
+
+    SECTION("Check Adjacency list (plain)") {
+      auto A = graph->plain_adjacency_list();
+      // check entries
+      REQUIRE(A.at(0).size() == 3);
+      REQUIRE(A.at(4).size() == 1);
+      REQUIRE(A.at(0).at(1) == 2);
+      REQUIRE(A.at(2).at(2) == 5);
+      REQUIRE(A.at(3).at(1) == 4);
+    }
   }
 }

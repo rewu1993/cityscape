@@ -6,7 +6,7 @@ bool Layer<P>::add_node(const std::shared_ptr<P>& point) {
   try {
     // Insert if point is not found in the graph
     if (nodes_names_.find(point->name()) == nodes_names_.end()) {
-      auto nid = point->id();
+      auto nid = node_idx_.create_index();
       points_.emplace(std::make_pair(nid, point));
       point_index_->insert(point);
       // add to graph
@@ -25,13 +25,20 @@ bool Layer<P>::add_node(const std::shared_ptr<P>& point) {
 template <typename P>
 bool Layer<P>::create_edge(const std::string& src, const std::string& dest,
                            bool directed, const std::string& tag) {
+  if (src == dest)
+    throw std::runtime_error("Source and destination are identical");
+
+  auto src_id = nodes_names_.at(src);
+  auto dest_id = nodes_names_.at(dest);
+
+  return create_edge(src_id, dest_id, directed, tag);
+}
+
+template <typename P>
+bool Layer<P>::create_edge(const cityscape::id_t& src_id, const id_t& dest_id,
+                           bool directed, const std::string& tag) {
   bool edge_status = true;
   try {
-    if (src == dest)
-      throw std::runtime_error("Source and destination are identical");
-
-    auto src_id = nodes_names_.at(src);
-    auto dest_id = nodes_names_.at(dest);
     auto source = points_.at(src_id);
     auto destination = points_.at(dest_id);
 
@@ -82,4 +89,21 @@ std::shared_ptr<Segment<P>> Layer<P>::segment(cityscape::id_t src,
     std::cout << "Exception: " << exception.what() << "\n";
   }
   return segment;
+}
+
+template <typename P>
+std::shared_ptr<P> Layer<P>::point(cityscape::id_t nid) {
+  std::shared_ptr<P> point = nullptr;
+  try {
+    // Locate point in layer
+    auto nitr = points_.find(nid);
+    if (nitr != points_.end())
+      point = (*nitr).second;
+    else
+      throw std::runtime_error(
+          "Invalid point, does not exist, returning nullptr\n");
+  } catch (std::exception& exception) {
+    std::cout << "Exception: " << exception.what() << "\n";
+  }
+  return point;
 }

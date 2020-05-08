@@ -41,6 +41,11 @@ class Graph {
   //! Number of nodes
   cityscape::id_t nnodes() const;
 
+  //! Node Name to id
+  //! \param[in] name Node name
+  //! \retval nid Node id
+  cityscape::id_t nname2id(const std::string& name) const;
+
   //! Create edge
   //! \param[in] src Source node name
   //! \param[in] dest Destination node name
@@ -78,13 +83,20 @@ class Graph {
   //! Dynamically compute the adjacency matrix of the graph
   //! \param[in] weight_method Method on compute edge weight from edge ptr
   //! \retval A Adjacency matrix of the graph with defined weight
-  Eigen::SparseMatrix<double> adjacency_matrix(utils::Weight& weight_method);
+  Eigen::SparseMatrix<double, Eigen::RowMajor> adjacency_matrix(
+      utils::Weight& weight_method);
+
+  //! Dynamically compute the plain adjacency list of the graph (no weight
+  //! information) \retval L Adjacency list of the graph with no weight
+  std::vector<std::vector<cityscape::id_t>> plain_adjacency_list();
 
  protected:
   //! Graph id
   cityscape::id_t id_{std::numeric_limits<cityscape::id_t>::max()};
   //! Tags
   std::set<std::string> tags_;
+  //! Node ID manager
+  cityscape::IndexManager node_idx_;
   //! Edge ID manager
   cityscape::IndexManager edge_idx_;
   //! Nodes
