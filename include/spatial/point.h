@@ -36,7 +36,7 @@ public:
   }
 
   //! Set kth coordinate (for boost register)
-  template <std::size_t K> void set(double x) {
+  template <std::size_t K> void set(const double x) {
     if (K > dim_ - 1) {
       throw std::runtime_error("Try to get more dimension for a point");
     }
@@ -96,12 +96,11 @@ struct dimension<cityscape::spatial::Point> : boost::mpl::int_<2> {};
 template <std::size_t Dimension>
 struct access<cityscape::spatial::Point, Dimension> {
   static inline double get(cityscape::spatial::Point const &p) {
-    return p.template get<Dimension>();
+    return p.get<Dimension>();
   }
 
-  static inline void set(cityscape::spatial::Point const &p,
-                         double const &value) {
-    p.template set<Dimension>(value);
+  static inline void set(cityscape::spatial::Point &p, double const &value) {
+    p.set<Dimension>(value);
   }
 };
 } // namespace traits
