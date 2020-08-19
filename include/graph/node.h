@@ -22,25 +22,24 @@ enum Direction { Any, Outgoing, Incoming };
 //! Graph node class
 //! \brief Base class of a graph node (vertex)
 class Node : public cityscape::spatial::Point {
-public:
+ public:
   Node() = default;
   //! Constructor with unique node id
   //! \param[in] id Index of the edge
   //! \param[in] name Unique name of the node
   //! \param[in] tag Tag to categorize node (default is empty)
-  Node(cityscape::id_t id, const std::string &name,
-       const std::string &tag = std::string())
+  Node(cityscape::id_t id, const std::string& name,
+       const std::string& tag = std::string())
       : cityscape::spatial::Point(id) {
     // If not an empty tag, insert tag
-    if (!tag.empty())
-      tags_.insert(tag);
+    if (!tag.empty()) tags_.insert(tag);
     // If name is empty, use id as name or assign name
     name_ = (name.empty() ? std::to_string(id) : name);
   };
 
   //! Check if the edge has a specific tag
   //! \param[in] tag Tag to categorize node
-  bool check_tag(const std::string &tag) const;
+  bool check_tag(const std::string& tag) const;
 
   //! Return name
   std::string name() const;
@@ -54,18 +53,18 @@ public:
   //! Add edge
   //! \param[in] edge Edge pointer
   //! \param[in] dir Direction of edge
-  void add_edge(const std::shared_ptr<cityscape::graph::Edge> &edge,
+  void add_edge(const std::shared_ptr<cityscape::graph::Edge>& edge,
                 Direction dir);
 
   //! Add tag
   //! \param[in] tag New tag
-  void add_tag(const std::string &tag);
+  void add_tag(const std::string& tag);
 
   //! Out edges
   //! \retval out_edges Return vector of outgoing edges
   std::vector<std::shared_ptr<cityscape::graph::Edge>> out_edges() const;
 
-protected:
+ protected:
   //! Tags
   std::set<std::string> tags_;
   //! Name
@@ -77,7 +76,7 @@ protected:
   //! Out-edges
   std::vector<std::shared_ptr<cityscape::graph::Edge>> out_edges_;
 };
-} // namespace graph
-} // namespace cityscape
+}  // namespace graph
+}  // namespace cityscape
 
-#endif // CITYSCAPE_GRAPH_NODE_H_
+#endif  // CITYSCAPE_GRAPH_NODE_H_

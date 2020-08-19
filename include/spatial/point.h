@@ -11,7 +11,7 @@
 namespace cityscape {
 namespace spatial {
 class Point {
-public:
+ public:
   Point() = default;
   //! Constructor with a unique point id
   //! \param[in] id Index of the point
@@ -28,7 +28,8 @@ public:
 
   //! Return kth coordinates (for boost register)
   //! \retval kth coordinate of the point
-  template <std::size_t K> double get() const {
+  template <std::size_t K>
+  double get() const {
     if (K > dim_ - 1) {
       throw std::runtime_error("Try to get more dimension for a point");
     }
@@ -36,7 +37,8 @@ public:
   }
 
   //! Set kth coordinate (for boost register)
-  template <std::size_t K> void set(const double x) {
+  template <std::size_t K>
+  void set(const double x) {
     if (K > dim_ - 1) {
       throw std::runtime_error("Try to get more dimension for a point");
     }
@@ -54,7 +56,7 @@ public:
   //! return coordinate
   const std::array<double, 2> coordinate() const { return coordinates_; }
 
-private:
+ private:
   //! dimension
   unsigned dim_{2};
   //! id
@@ -64,29 +66,34 @@ private:
                                      std::numeric_limits<double>::max()};
 };
 
-inline bool operator==(Point const &lhs, Point const &rhs) {
+inline bool operator==(Point const& lhs, Point const& rhs) {
   return lhs.coordinate() == rhs.coordinate();
 }
 
-inline bool operator!=(Point const &lhs, Point const &rhs) {
+inline bool operator!=(Point const& lhs, Point const& rhs) {
   return !(lhs == rhs);
 }
 
-} // namespace spatial
-} // namespace cityscape
+}  // namespace spatial
+}  // namespace cityscape
 
 // Register Point as a 2D Point
 // Adapt the point to the boost concept
 namespace boost {
 namespace geometry {
 namespace traits {
-template <> struct tag<cityscape::spatial::Point> { typedef point_tag type; };
+template <>
+struct tag<cityscape::spatial::Point> {
+  typedef point_tag type;
+};
 
-template <> struct coordinate_type<cityscape::spatial::Point> {
+template <>
+struct coordinate_type<cityscape::spatial::Point> {
   typedef double type;
 };
 
-template <> struct coordinate_system<cityscape::spatial::Point> {
+template <>
+struct coordinate_system<cityscape::spatial::Point> {
   typedef boost::geometry::cs::cartesian type;
 };
 
@@ -95,16 +102,16 @@ struct dimension<cityscape::spatial::Point> : boost::mpl::int_<2> {};
 
 template <std::size_t Dimension>
 struct access<cityscape::spatial::Point, Dimension> {
-  static inline double get(cityscape::spatial::Point const &p) {
+  static inline double get(cityscape::spatial::Point const& p) {
     return p.get<Dimension>();
   }
 
-  static inline void set(cityscape::spatial::Point &p, double const &value) {
+  static inline void set(cityscape::spatial::Point& p, double const& value) {
     p.set<Dimension>(value);
   }
 };
-} // namespace traits
-} // namespace geometry
-} // namespace boost
+}  // namespace traits
+}  // namespace geometry
+}  // namespace boost
 
-#endif // CITYSCAPE_POINT_H
+#endif  // CITYSCAPE_POINT_H

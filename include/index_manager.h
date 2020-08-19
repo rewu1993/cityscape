@@ -10,7 +10,7 @@ namespace cityscape {
 //! Graph index class
 //! \brief Base class of a graph index (vertex)
 class IndexManager {
-public:
+ public:
   //! Constructor with an inital value for index
   explicit IndexManager(cityscape::id_t idx = 0);
 
@@ -23,7 +23,7 @@ public:
   //! Create index
   cityscape::id_t create_index();
 
-private:
+ private:
   //! index
   cityscape::id_t index_{0};
   //! Next value
@@ -31,6 +31,6 @@ private:
   //! Mutex
   std::mutex index_mutex_;
 };
-} // namespace cityscape
+}  // namespace cityscape
 
-#endif // CITYSCAPE_INDEX_H_
+#endif  // CITYSCAPE_INDEX_H_

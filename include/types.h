@@ -6,6 +6,6 @@
 namespace cityscape {
 //! Index type
 using id_t = uint64_t;
-} // namespace cityscape
+}  // namespace cityscape
 
-#endif // CITYSCAPE_GRAPH_TYPES_H_
+#endif  // CITYSCAPE_GRAPH_TYPES_H_
