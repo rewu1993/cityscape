@@ -1,0 +1,247 @@
+#include "graph.h"
+#include <iostream>
+
+//! Constructor with a unique graph id, tag and initialize idx
+cityscape::graph::Graph::Graph(cityscape::id_t id, const std::string& tag)
+    : id_{id}, edge_idx_{0} {
+  // If not an empty tag, insert tag
+  if (!tag.empty()) tags_.insert(tag);
+}
+
+//! Graph id
+cityscape::id_t cityscape::graph::Graph::id() const { return id_; }
+
+//! Check if the graph has a specific tag
+bool cityscape::graph::Graph::check_tag(const std::string& tag) const {
+  return (tags_.find(tag) != tags_.end() ? true : false);
+}
+
+//! Add node
+bool cityscape::graph::Graph::add_node(const std::shared_ptr<Node>& node) {
+  bool add_node_status = true;
+  try {
+    // Insert if node is not found in the graph
+    if (nodes_.find(node->id()) == nodes_.end()) {
+      nodes_.emplace(std::make_pair(node->id(), node));
+    } else {
+      throw std::runtime_error("Duplicate node found, insertion failed");
+    }
+  } catch (std::exception& exception) {
+    add_node_status = false;
+  }
+  return add_node_status;
+}
+
+//! Number of nodes
+cityscape::id_t cityscape::graph::Graph::nnodes() const {
+  return nodes_.size();
+}
+
+//! create edge
+bool cityscape::graph::Graph::create_edge(const cityscape::id_t src_id,
+                                          const cityscape::id_t dest_id,
+                                          bool directed,
+                                          const std::string& tag) {
+  bool edge_status = true;
+  try {
+    if (src_id == dest_id)
+      throw std::runtime_error("Source and destination are identical");
+
+    auto source = nodes_.at(src_id);
+    auto destination = nodes_.at(dest_id);
+
+    // Create a new edge index
+    auto eid = edge_idx_.create_index();
+    auto edge =
+        std::make_shared<cityscape::graph::Edge>(source, destination, eid, tag);
+    edges_.emplace(std::make_pair(std::make_tuple(src_id, dest_id), edge));
+    edge_ids_.emplace(std::make_pair(eid, edge));
+
+    // Directed graph
+    if (directed) {
+      source->add_edge(edge, cityscape::graph::Direction::Outgoing);
+      destination->add_edge(edge, cityscape::graph::Direction::Incoming);
+    } else {
+      // Undirected graph
+      source->add_edge(edge, cityscape::graph::Direction::Any);
+      destination->add_edge(edge, cityscape::graph::Direction::Any);
+      edges_.emplace(std::make_pair(std::make_tuple(dest_id, src_id), edge));
+    }
+  } catch (std::exception& exception) {
+    edge_status = false;
+    std::cout << "Exception: " << exception.what() << "\n";
+  }
+  return edge_status;
+}
+
+//! Number of edges
+cityscape::id_t cityscape::graph::Graph::nedges() const {
+  return edges_.size();
+}
+
+//! Return an edge pointer
+std::shared_ptr<cityscape::graph::Edge> cityscape::graph::Graph::edge(
+    cityscape::id_t src, cityscape::id_t dest) const {
+
+  std::shared_ptr<cityscape::graph::Edge> edge = nullptr;
+  try {
+    // Locate edge in graph
+    auto eitr = edges_.find(std::make_tuple(src, dest));
+    if (eitr != edges_.end())
+      edge = (*eitr).second;
+    else
+      throw std::runtime_error(
+          "Invalid edge, does not exist, returning nullptr\n");
+  } catch (std::exception& exception) {
+    std::cout << "Exception: " << exception.what() << "\n";
+  }
+  return edge;
+}
+
+// Dijktra shortest paths from src to a vertex
+std::vector<cityscape::id_t> cityscape::graph::Graph::dijkstra(
+    const cityscape::id_t src_id, const cityscape::id_t dest_id,
+    cityscape::graph::Graph::Container ctr) const {
+
+  cityscape::id_t source = src_id;
+  cityscape::id_t destination = dest_id;
+
+  // Using lambda to compare elements.
+  auto compare =
+      [](std::pair<cityscape::graph::weight_t, cityscape::id_t> left,
+         std::pair<cityscape::graph::weight_t, cityscape::id_t> right) {
+        return left.first > right.first;
+      };
+
+  // Create a priority queue to store weights and vertices
+  std::priority_queue<
+      std::pair<cityscape::graph::weight_t, cityscape::id_t>,
+      std::vector<std::pair<cityscape::graph::weight_t, cityscape::id_t>>,
+      decltype(compare)>
+      priority_queue(compare);
+
+  // Create a vector for distances and initialize all to max
+  std::vector<graph::weight_t> distances;
+  distances.resize(this->nodes_.size(),
+                   std::numeric_limits<cityscape::graph::weight_t>::max());
+  // Parent array to store shortest path tree
+  std::vector<cityscape::id_t> parent;
+  parent.resize(this->nodes_.size(), -1);
+
+  std::vector<cityscape::id_t> path;
+  if (nodes_.find(source) == nodes_.end() ||
+      nodes_.find(destination) == nodes_.end())
+    return path;
+
+  // Insert source itself in priority queue & initialize its distance as 0.
+  priority_queue.push(std::make_pair(0., source));
+  distances[source] = 0.;
+
+  // Looping till priority queue becomes empty (or all
+  // distances are not finalized)
+  while (!priority_queue.empty()) {
+    // {min_weight, vertex} sorted based on weights (distance)
+    cityscape::id_t u = priority_queue.top().second;
+    priority_queue.pop();
+
+    // Break if destination is reached
+    if (u == destination) break;
+
+    // Get all adjacent vertices of a vertex
+    for (const auto& edge : nodes_.at(u)->out_edges()) {
+      // Get node id of neighbour of u.
+      const cityscape::id_t neighbour = edge->dest()->id();
+
+      // Distance from source to neighbour
+      // distance_u = distance to current node + weight of edge u to
+      // neighbour
+      const cityscape::graph::weight_t distance_u =
+          distances.at(u) + edge->weight();
+      // If there is shorted path to neighbour vertex through u.
+      if (distances.at(neighbour) > distance_u) {
+        parent[neighbour] = u;
+        // Update distance of the vertex
+        distances.at(neighbour) = distance_u;
+        priority_queue.push(std::make_pair(distance_u, neighbour));
+      }
+    }
+  }
+
+  path.emplace_back(destination);
+  // Iterate until source has been reached
+  while (destination != source && destination != -1) {
+    destination = parent.at(destination);
+    if (destination != source && destination != -1)
+      path.emplace_back(destination);
+  }
+  path.emplace_back(source);
+  // Reverse to arrange path from source to destination
+  std::reverse(std::begin(path), std::end(path));
+
+  // Container of edges
+  if (ctr == cityscape::graph::Graph::Container::Edges) {
+    // Create a vector of edges
+    std::vector<cityscape::id_t> edges;
+    edges.reserve(path.size() - 1);
+    for (auto itr = path.begin(); itr != path.end() - 1; ++itr) {
+      auto nitr = itr + 1;
+      edges.emplace_back(edges_.at(std::make_tuple((*itr), (*nitr)))->id());
+    }
+    // Return vector of edges
+    return edges;
+  }
+  return path;
+}
+
+// Compute cost of shortest paths from src to a vertex
+double cityscape::graph::Graph::path_cost(
+    const std::vector<cityscape::id_t>& path,
+    cityscape::graph::Graph::Container ctr) const {
+
+  // Initialize path cost
+  double cost = 0.;
+
+  // Container of edges
+  if (ctr == cityscape::graph::Graph::Container::Edges) {
+    for (const auto& edge : path) cost += edge_ids_.at(edge)->weight();
+  } else {
+    // Container of nodes
+    for (auto itr = path.begin(); itr != path.end() - 1; ++itr) {
+      auto nitr = itr + 1;
+      cost += edges_.at(std::make_tuple((*itr), (*nitr)))->weight();
+    }
+  }
+  return cost;
+}
+
+// Eigen::SparseMatrix<double, Eigen::RowMajor>
+//    cityscape::graph::Graph::adjacency_matrix(utils::Weight& weight_method) {
+//  Eigen::SparseMatrix<double> A;
+//  std::vector<Eigen::Triplet<double>> graph_triplet;
+//  A.resize(this->nnodes(), this->nedges());
+//
+//  // construct from the map
+//  for (auto const& x : edges_) {
+//    auto nids = x.first;
+//    auto edge = x.second;
+//    graph_triplet.emplace_back(std::get<0>(nids), std::get<1>(nids),
+//                               weight_method.get_weight(edge));
+//  }
+//  A.setFromTriplets(graph_triplet.begin(), graph_triplet.end());
+//  return A;
+//}
+//
+// std::vector<std::vector<cityscape::id_t>>
+//    cityscape::graph::Graph::plain_adjacency_list() {
+//  std::vector<std::vector<cityscape::id_t>> L;
+//
+//  std::vector<Eigen::Triplet<double>> graph_triplet;
+//  L.resize(this->nnodes());
+//  // construct from the map
+//  for (auto const& x : edges_) {
+//    auto nids = x.first;
+//    auto edge = x.second;
+//    L[std::get<0>(nids)].emplace_back(std::get<1>(nids));
+//  }
+//  return L;
+//}

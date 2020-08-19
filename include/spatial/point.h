@@ -36,7 +36,7 @@ public:
   }
 
   //! Set kth coordinate (for boost register)
-  template <std::size_t K> void set(const double x) {
+  template <std::size_t K> void set(double x) {
     if (K > dim_ - 1) {
       throw std::runtime_error("Try to get more dimension for a point");
     }

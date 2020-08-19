@@ -14,28 +14,28 @@ public:
   Segment() = default;
   //! Constructor
   //! \param[in] id Index of the segment
-  //! \param[in] src Source point
-  //! \param[in] dest Destination point
-  Segment(cityscape::id_t id, const std::shared_ptr<Point> &src,
-          const std::shared_ptr<Point> &dest)
-      : id_{id}, src_{src}, dest_{dest} {}
+  //! \param[in] p1 One end point
+  //! \param[in] p1 One end point
+  Segment(cityscape::id_t id, const std::shared_ptr<Point> &p1,
+          const std::shared_ptr<Point> &p2)
+      : id_{id}, p1_{p1}, p2_{p2} {}
 
   //! Get id
   const cityscape::id_t id() const { return id_; }
 
   //! Source point
-  std::shared_ptr<const Point> src() const { return src_; }
+  std::shared_ptr<const Point> p1() const { return p1_; }
 
   //! Destination point
-  std::shared_ptr<const Point> dest() const { return dest_; }
+  std::shared_ptr<const Point> p2() const { return p2_; }
 
 private:
   //! id
   cityscape::id_t id_{std::numeric_limits<cityscape::id_t>::max()};
   //! Source node
-  std::shared_ptr<Point> src_{NULL};
+  std::shared_ptr<Point> p1_{NULL};
   //! Destination node
-  std::shared_ptr<Point> dest_{NULL};
+  std::shared_ptr<Point> p2_{NULL};
 };
 } // namespace spatial
 } // namespace cityscape
@@ -55,11 +55,11 @@ template <std::size_t Dimension> struct indexed_access<Segment, 0, Dimension> {
   typedef typename geometry::coordinate_type<Point>::type coordinate_type;
 
   static inline coordinate_type get(Segment const &s) {
-    return geometry::get<Dimension>(*s.src());
+    return geometry::get<Dimension>(*s.p1());
   }
 
   static inline void set(Segment &s, coordinate_type const &value) {
-    geometry::set<Dimension>(*s.src(), value);
+    geometry::set<Dimension>(*s.p1(), value);
   }
 };
 
@@ -67,11 +67,11 @@ template <std::size_t Dimension> struct indexed_access<Segment, 1, Dimension> {
   typedef typename geometry::coordinate_type<Point>::type coordinate_type;
 
   static inline coordinate_type get(Segment const &s) {
-    return geometry::get<Dimension>(*s.dest());
+    return geometry::get<Dimension>(*s.p2());
   }
 
   static inline void set(Segment &s, coordinate_type const &value) {
-    geometry::set<Dimension>(*s.dest(), value);
+    geometry::set<Dimension>(*s.p2(), value);
   }
 };
 } // namespace traits

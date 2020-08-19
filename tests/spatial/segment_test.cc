@@ -36,8 +36,9 @@ TEST_CASE("Spatial line", "[spatial][line]") {
     // Test seg id
     REQUIRE(seg->id() == eid);
     // check basic properties
-    REQUIRE(seg->src()->id() == src->id());
-    REQUIRE(seg->dest()->coordinate() == dest->coordinate());
+    REQUIRE(seg->p1()->id() == src->id());
+    REQUIRE(seg->p2()->id() == dest->id());
+    REQUIRE(seg->p2()->coordinate() == dest->coordinate());
   }
 
   SECTION("Test seg boost properties") {
